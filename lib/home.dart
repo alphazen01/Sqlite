@@ -15,9 +15,11 @@ class _HomeScreenState extends State<HomeScreen> {
   TextEditingController fNameEditingController = TextEditingController();
   TextEditingController lNameEditingController = TextEditingController();
    TextEditingController emailEditingController = TextEditingController();
+
+   int customerId=0;
+   Random random=Random();
     
-    Random random=Random();
-    int customerId = 0;
+   
 
   @override
   Widget build(BuildContext context) {
@@ -101,7 +103,7 @@ class _HomeScreenState extends State<HomeScreen> {
                            
                          });
                          final customer=CustomerModel(
-                           id: random.nextInt(100),
+                           id:random.nextInt(100),
                            firstName: fNameEditingController.text,
                            lastName: lNameEditingController.text,
                            email: emailEditingController.text
@@ -114,16 +116,19 @@ class _HomeScreenState extends State<HomeScreen> {
                        child: Text("Save"), 
                      ),
                      ElevatedButton(
-                       onPressed: ()async{
-                         final customer=CustomerModel(
-                           id: customerId,
-                           firstName: fNameEditingController.text,
-                           lastName: lNameEditingController.text,
-                           email: emailEditingController.text
-                         );
-                         await DatabaseHelper.instance.updateCustomer(customer);
-                          fNameEditingController.clear();
-                       },
+                      onPressed:() async{
+                        setState(() {
+                          
+                        });
+                        final customer = CustomerModel(
+                          id: customerId,
+                          firstName: fNameEditingController.text,
+                          lastName: lNameEditingController.text,
+                          email: emailEditingController.text
+                        );
+                        await DatabaseHelper.instance.upadateCustomer(customer);
+                        fNameEditingController.clear();
+                      },
                      
                      
                         
@@ -132,7 +137,6 @@ class _HomeScreenState extends State<HomeScreen> {
                    ],
                  ),
               Container(
-                color: Colors.red,
                 height: 400,
                 child: FutureBuilder(
                   future: DatabaseHelper.instance.getCustomer(),
@@ -144,18 +148,33 @@ class _HomeScreenState extends State<HomeScreen> {
                       scrollDirection: Axis.vertical,
                       children: snapshot.data!.map((customer) {
                         return ListTile(
-                          trailing: IconButton(
-                                  onPressed: (){
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              IconButton(
+                                
+                                  onPressed: ()async{
                                     setState(() {
-                                      fNameEditingController.text = customer.firstName!;
-                                      lNameEditingController.text = customer.lastName!;
-                                      emailEditingController.text = customer.email!;
-                                      customerId = customer.id!;
+                                      
                                     });
-                     
+                                   await DatabaseHelper.instance.deleteCustomer(customer.id);
                                   }, 
-                                  icon: Icon(Icons.edit)
+                                  icon: Icon(Icons.delete, color: Colors.red,)
                                 ),
+                              IconButton(
+                                      onPressed: (){
+                                       setState(() {
+                                         fNameEditingController.text=customer.firstName!;
+                                         lNameEditingController.text=customer.lastName!;
+                                         emailEditingController.text=customer.email!;
+                                         customerId=customer.id!;
+                                       }); 
+                     
+                                      }, 
+                                      icon: Icon(Icons.edit)
+                                    ),
+                            ],
+                          ),
                           title:Text("${customer.firstName}" + "${customer.lastName}"),
                           subtitle: Text("${customer.email}"),
                         );
