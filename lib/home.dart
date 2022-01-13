@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:sqlite/customer_model.dart';
 import 'package:sqlite/database_helper.dart';
@@ -13,6 +15,9 @@ class _HomeScreenState extends State<HomeScreen> {
   TextEditingController fNameEditingController = TextEditingController();
   TextEditingController lNameEditingController = TextEditingController();
    TextEditingController emailEditingController = TextEditingController();
+    
+    Random random=Random();
+    int customerId = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -87,22 +92,47 @@ class _HomeScreenState extends State<HomeScreen> {
                      ),
                  ),
                  SizedBox(height: 20,),
-                 ElevatedButton(
-                   onPressed: ()async{
-                     final customer=CustomerModel(
-                       id: 1,
-                       firstName: fNameEditingController.text,
-                       lastName: lNameEditingController.text,
-                       email: emailEditingController.text
-                     );
-                     await DatabaseHelper.instance.addCustomer(customer);
-                   },
-                 
-                 
-                    
-                   child: Text("Save"), 
+                 Row(
+                   mainAxisAlignment: MainAxisAlignment.spaceAround,
+                   children: [
+                     ElevatedButton(
+                       onPressed: ()async{
+                         setState(() {
+                           
+                         });
+                         final customer=CustomerModel(
+                           id: random.nextInt(100),
+                           firstName: fNameEditingController.text,
+                           lastName: lNameEditingController.text,
+                           email: emailEditingController.text
+                         );
+                         await DatabaseHelper.instance.addCustomer(customer);
+                       },
+                     
+                     
+                        
+                       child: Text("Save"), 
+                     ),
+                     ElevatedButton(
+                       onPressed: ()async{
+                         final customer=CustomerModel(
+                           id: customerId,
+                           firstName: fNameEditingController.text,
+                           lastName: lNameEditingController.text,
+                           email: emailEditingController.text
+                         );
+                         await DatabaseHelper.instance.updateCustomer(customer);
+                          fNameEditingController.clear();
+                       },
+                     
+                     
+                        
+                       child: Text("Update"), 
               ),
+                   ],
+                 ),
               Container(
+                color: Colors.red,
                 height: 400,
                 child: FutureBuilder(
                   future: DatabaseHelper.instance.getCustomer(),
@@ -111,10 +141,23 @@ class _HomeScreenState extends State<HomeScreen> {
                         return Text("Loading......");
                       }
                     return ListView(
+                      scrollDirection: Axis.vertical,
                       children: snapshot.data!.map((customer) {
                         return ListTile(
-                          title:Text(customer.firstName??"") ,
-                          subtitle: Text(customer.lastName??""),
+                          trailing: IconButton(
+                                  onPressed: (){
+                                    setState(() {
+                                      fNameEditingController.text = customer.firstName!;
+                                      lNameEditingController.text = customer.lastName!;
+                                      emailEditingController.text = customer.email!;
+                                      customerId = customer.id!;
+                                    });
+                     
+                                  }, 
+                                  icon: Icon(Icons.edit)
+                                ),
+                          title:Text("${customer.firstName}" + "${customer.lastName}"),
+                          subtitle: Text("${customer.email}"),
                         );
                       }).toList()
                     );

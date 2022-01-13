@@ -9,8 +9,11 @@ class  DatabaseHelper{
 DatabaseHelper._privateConstructor();
 
 static final DatabaseHelper instance=DatabaseHelper._privateConstructor();
+
 static Database?  _database;
+
 Future <Database>get database async=>_database?? await _initDatabase();
+
 Future <Database> _initDatabase()async{
   Directory documentDirectory=await getApplicationDocumentsDirectory();
   String path=join(documentDirectory.path,'customer.db');
@@ -39,11 +42,40 @@ Future <int>addCustomer(CustomerModel customerModel)async{
 Future<List<CustomerModel>>getCustomer()async{
  Database db =await instance.database; 
  var customer=await db.query("customer",orderBy: "id");
+
+
+ 
  List<CustomerModel>customerList=customer.isNotEmpty?
  customer.map((data) => CustomerModel.fromMap(data)).toList():[];
 
 return customerList;
 
 }
+
+Future<int> updateCustomer (CustomerModel customerModel)async {
+
+  Database db = await instance.database;
+
+  return await db.update(
+    "customer", 
+    customerModel.toMap(),
+    where: "id = ?",
+    whereArgs: [customerModel.id]
+  );
+
+}
+
+
+// Future<int> deleteCustomer (int? id) async{
+
+// Database db = await instance.database;
+
+//  return await db.delete(
+//    "customer",
+//    where: "id = ?",
+//    whereArgs: [id]
+//  );
+// }
+
 
 }
